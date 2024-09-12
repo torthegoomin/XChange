@@ -24,6 +24,7 @@ public class TradeOgreExchange extends BaseExchange {
     exchangeSpecification.setPort(80);
     exchangeSpecification.setExchangeName("TradeOgre");
     exchangeSpecification.setExchangeDescription("TradeOgre is a cryptocurrency exchange.");
+    exchangeSpecification.setShouldLoadRemoteMetaData(false);
     return exchangeSpecification;
   }
 }
