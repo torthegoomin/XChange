@@ -6,12 +6,14 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.tradeogre.TradeOgreAdapters;
 import org.knowm.xchange.tradeogre.TradeOgreExchange;
 import org.knowm.xchange.tradeogre.dto.marketdata.TradeOgreOrderBook;
 import org.knowm.xchange.tradeogre.dto.marketdata.TradeOgreTicker;
 
 public class TradeOgreMarketDataServiceRaw extends TradeOgreBaseService {
+
   /**
    * Constructor
    *
@@ -37,7 +39,7 @@ public class TradeOgreMarketDataServiceRaw extends TradeOgreBaseService {
                     entry.getValue()));
   }
 
-  public TradeOgreOrderBook getTradeOgreOrderBook(CurrencyPair currencyPair) throws IOException {
+  public TradeOgreOrderBook getTradeOgreOrderBook(Instrument currencyPair) throws IOException {
     String market = TradeOgreAdapters.adaptCurrencyPair(currencyPair);
     return tradeOgre.getOrderBook(market);
   }

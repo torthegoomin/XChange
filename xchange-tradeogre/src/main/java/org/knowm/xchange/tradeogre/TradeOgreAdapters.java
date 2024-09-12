@@ -15,6 +15,7 @@ import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.tradeogre.dto.account.TradeOgreBalance;
 import org.knowm.xchange.tradeogre.dto.marketdata.TradeOgreOrderBook;
 import org.knowm.xchange.tradeogre.dto.marketdata.TradeOgreTicker;
@@ -22,13 +23,13 @@ import org.knowm.xchange.tradeogre.dto.trade.TradeOgreOrder;
 
 public class TradeOgreAdapters {
 
-  public static String adaptCurrencyPair(CurrencyPair currencyPair) {
-    return currencyPair.counter.toString() + "-" + currencyPair.base.toString();
+  public static String adaptCurrencyPair(Instrument currencyPair) {
+    return currencyPair.getBase().toString() + "-" + currencyPair.getCounter().toString();
   }
 
   public static CurrencyPair adaptTradeOgreCurrencyPair(String currencyPair) {
     String[] split = currencyPair.split("-");
-    return new CurrencyPair(split[1], split[0]);
+    return new CurrencyPair(split[0], split[1]);
   }
 
   public static Balance adaptTradeOgreBalance(String currency, TradeOgreBalance tradeOgreBalance) {
@@ -47,12 +48,12 @@ public class TradeOgreAdapters {
         .last(new BigDecimal(tradeOgreTicker.getPrice()))
         .ask(new BigDecimal(tradeOgreTicker.getAsk()))
         .bid(new BigDecimal(tradeOgreTicker.getBid()))
-        .currencyPair(currencyPair)
+        .instrument(currencyPair)
         .build();
   }
 
   public static OrderBook adaptOrderBook(
-      CurrencyPair currencyPair, TradeOgreOrderBook tradeOgreOrderBook) {
+      Instrument currencyPair, TradeOgreOrderBook tradeOgreOrderBook) {
     return new OrderBook(
         new Date(System.currentTimeMillis()),
         getOrders(currencyPair, tradeOgreOrderBook, Order.OrderType.ASK),
@@ -61,7 +62,7 @@ public class TradeOgreAdapters {
   }
 
   private static List<LimitOrder> getOrders(
-      CurrencyPair currencyPair, TradeOgreOrderBook tradeOgreOrderBook, Order.OrderType orderType) {
+      Instrument currencyPair, TradeOgreOrderBook tradeOgreOrderBook, Order.OrderType orderType) {
     Map<BigDecimal, BigDecimal> orders =
         Order.OrderType.BID.equals(orderType)
             ? tradeOgreOrderBook.getBuy()
@@ -94,10 +95,11 @@ public class TradeOgreAdapters {
             .map(
                 tradeOgreOrder ->
                     new LimitOrder.Builder(
-                            getType(tradeOgreOrder),
-                            adaptTradeOgreCurrencyPair(tradeOgreOrder.getMarket()))
+                        getType(tradeOgreOrder),
+                        adaptTradeOgreCurrencyPair(tradeOgreOrder.getMarket()))
                         .limitPrice(tradeOgreOrder.getPrice())
-                        .originalAmount(tradeOgreOrder.getQuantity())
+                        .originalAmount(tradeOgreOrder.getQuantity().add(tradeOgreOrder.getFulfilled()))
+                        .cumulativeAmount(tradeOgreOrder.getFulfilled())
                         .timestamp(new Date(tradeOgreOrder.getDate()))
                         .id(tradeOgreOrder.getUuid())
                         .build())

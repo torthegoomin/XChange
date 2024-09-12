@@ -10,5 +10,6 @@ public class TradeOgreOrder {
   public String type;
   public BigDecimal price;
   public BigDecimal quantity;
+  public BigDecimal fulfilled;
   public String market;
 }
